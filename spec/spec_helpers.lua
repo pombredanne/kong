@@ -56,7 +56,7 @@ end
 --
 -- OS and bin/kong helpers
 --
-local function kong_bin(signal, conf_file, skip_wait)
+local function kong_bin(signal, conf_file)
   local env = _M.get_env(conf_file)
   local result, exit_code = IO.os_execute(_M.KONG_BIN.." "..signal.." -c "..env.conf_file)
 
@@ -64,18 +64,12 @@ local function kong_bin(signal, conf_file, skip_wait)
     error("spec_helper cannot "..signal.." kong: \n"..result)
   end
 
-  if signal == "start" and not skip_wait then
-    os.execute("while ! [ -f "..env.configuration.pid_file.." ]; do sleep 0; done")
-  elseif signal == "quit" or signal == "stop" then
-    os.execute("while [ -f "..env.configuration.pid_file.." ]; do sleep 0; done")
-  end
-
   return result, exit_code
 end
 
 for _, signal in ipairs({ "start", "stop", "restart", "reload", "quit" }) do
   _M[signal.."_kong"] = function(conf_file, skip_wait)
-    return kong_bin(signal, conf_file, skip_wait)
+    return kong_bin(signal, conf_file)
   end
 end
 
