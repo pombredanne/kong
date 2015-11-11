@@ -26,6 +26,7 @@ dependencies = {
   "ansicolors ~> 1.0.2-3",
   "lbase64 ~> 20120820-1",
   "lua-resty-iputils ~> 0.2.0-1",
+  "mediator_lua ~> 1.1.2-0",
 
   "luasocket ~> 2.0.2-6",
   "lrexlib-pcre ~> 2.8.0-1",

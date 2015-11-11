@@ -7,9 +7,11 @@ function _M.insert(collection, entity)
 
   local serf = require("kong.cli.services.serf")(configuration)
   serf:event({
-    operation = constants.ENTITY_CREATED,
+    type = constants.ENTITY_CREATED,
     collection = collection,
-    entity = entity
+    properties = {
+      entity = entity
+    }
   })
 end
 
