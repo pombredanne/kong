@@ -139,21 +139,14 @@ function _M.patch(params, old_entity, dao_collection)
 end
 
 function _M.delete(where_t, dao_collection)
-  print("WAT")
   local res, err = dao_collection:delete(where_t)
-
-  local inspect = require "inspect"
-  print(inspect(res))
-
   if not res then
-    print("WAT")
     if err then
       return app_helpers.yield_error(err)
     else
       return responses.send_HTTP_NOT_FOUND()
     end
   else
-    print("WOT")
     propagator.delete(dao_collection._table, res)
     return responses.send_HTTP_NO_CONTENT()
   end

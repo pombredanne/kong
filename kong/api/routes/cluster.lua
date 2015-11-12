@@ -36,12 +36,7 @@ return {
   ["/cluster/events/"] = {
     POST = function(self, dao_factory)
       -- Trigger event in the node
-
-      local inspect = require "inspect"
-      print(inspect(self.params))
-
       events:publish(self.params.type, self.params.data)
-      
       return responses.send_HTTP_OK()
     end
   }
