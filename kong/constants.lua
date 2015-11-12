@@ -54,10 +54,5 @@ return {
       "month",
       "year"
     }
-  },
-  EVENTS = {
-    ENTITY_CREATED = "create",
-    ENTITY_UPDATED = "update",
-    ENTITY_DELETED = "delete"
   }
 }

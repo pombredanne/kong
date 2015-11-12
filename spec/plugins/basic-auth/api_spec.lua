@@ -29,8 +29,8 @@ describe("Basic Auth Credentials API", function()
 
       teardown(function()
         local dao = spec_helper.get_env().dao_factory
-        local ok, err = dao.basicauth_credentials:delete(credential)
-        assert.True(ok)
+        local res, err = dao.basicauth_credentials:delete(credential)
+        assert.truthy(res)
         assert.falsy(err)
       end)
 

@@ -2,8 +2,6 @@ local responses = require "kong.tools.responses"
 local constants = require "kong.constants"
 local cjson = require "cjson"
 
-
-
 return {
   ["/cluster/"] = {
     GET = function(self, dao_factory)
@@ -37,15 +35,13 @@ return {
   },
   ["/cluster/events/"] = {
     POST = function(self, dao_factory)
-      local operation = self.params.operation
+      -- Trigger event in the node
+
+      local inspect = require "inspect"
+      print(inspect(self.params))
+
+      events:publish(self.params.type, self.params.data)
       
-      if operation and (operation == constants.ENTITY_UPDATED or operation == constants.ENTITY_DELETED) then
-        -- Invoke plugin's invalidation
-
-        -- TODO
-
-      end
-
       return responses.send_HTTP_OK()
     end
   }

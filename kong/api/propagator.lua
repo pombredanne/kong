@@ -1,4 +1,4 @@
-local constants = require "kong.constants"
+local event_types = require "kong.core.events".TYPES
 
 local _M = {}
 
@@ -7,9 +7,9 @@ function _M.insert(collection, entity)
 
   local serf = require("kong.cli.services.serf")(configuration)
   serf:event({
-    type = constants.ENTITY_CREATED,
-    collection = collection,
-    properties = {
+    type = event_types.ENTITY_CREATED,
+    data = {
+      collection = collection,
       entity = entity
     }
   })
@@ -20,21 +20,25 @@ function _M.update(collection, old_entity, new_entity)
 
   local serf = require("kong.cli.services.serf")(configuration)
   serf:event({
-    operation = constants.ENTITY_UPDATED,
-    collection = collection,
-    old_entity = old_entity,
-    new_entity = entity
+    type = event_types.ENTITY_UPDATED,
+    data = {
+      collection = collection,
+      old_entity = old_entity,
+      new_entity = entity
+    }
   })
 end
 
-function _M.delete(collection, where_t)
+function _M.delete(collection, entity_deleted)
   ngx.log(ngx.DEBUG, " delete API action for \""..collection.."\"")
 
   local serf = require("kong.cli.services.serf")(configuration)
   serf:event({
-    operation = constants.ENTITY_DELETED,
-    collection = collection,
-    where_t = where_t
+    type = event_types.ENTITY_DELETED,
+    data = {
+      collection = collection,
+      entity = entity_deleted
+    }
   })
 end
 

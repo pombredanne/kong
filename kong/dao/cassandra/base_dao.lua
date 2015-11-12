@@ -335,7 +335,7 @@ end
 ---
 -- Delete the row with PRIMARY KEY from the configured table (**_table** attribute).
 -- @param[table=table] where_t A table containing the PRIMARY KEY (columns/values) of the row to delete
--- @treturn boolean True if deleted, false if otherwise or not found
+-- @treturn table   Returns the deleted entity
 -- @treturn table   Error if any during the query execution or the cascade delete hook
 function BaseDao:delete(where_t)
   assert(self._primary_key ~= nil and type(self._primary_key) == "table" , "Entity does not have a primary_key")
@@ -365,7 +365,7 @@ function BaseDao:delete(where_t)
     end
   end
 
-  return results
+  return res
 end
 
 ---

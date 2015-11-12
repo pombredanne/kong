@@ -2,7 +2,7 @@ local responses = require "kong.tools.responses"
 local validations = require "kong.dao.schemas_validation"
 local app_helpers = require "lapis.application"
 local utils = require "kong.tools.utils"
-local events = require "kong.api.events"
+local propagator = require "kong.api.propagator"
 
 local _M = {}
 
@@ -97,13 +97,13 @@ function _M.put(params, dao_collection)
   if res then
     new_entity, err = dao_collection:update(params, true)
     if not err then
-      events.update(dao_collection._table, res, new_entity)
+      propagator.update(dao_collection._table, res, new_entity)
       return responses.send_HTTP_OK(new_entity)
     end
   else
     new_entity, err = dao_collection:insert(params)
     if not err then
-      events.insert(dao_collection._table, new_entity)
+      propagator.insert(dao_collection._table, new_entity)
       return responses.send_HTTP_CREATED(new_entity)
     end
   end
@@ -119,7 +119,7 @@ function _M.post(params, dao_collection, success)
     return app_helpers.yield_error(err)
   else
     if success then success(utils.deep_copy(data)) end
-    events.insert(dao_collection._table, data)
+    propagator.insert(dao_collection._table, data)
     return responses.send_HTTP_CREATED(data)
   end
 end
@@ -133,21 +133,28 @@ function _M.patch(params, old_entity, dao_collection)
   if err then
     return app_helpers.yield_error(err)
   else
-    events.update(dao_collection._table, old_entity, updated_entity)
+    propagator.update(dao_collection._table, old_entity, updated_entity)
     return responses.send_HTTP_OK(updated_entity)
   end
 end
 
 function _M.delete(where_t, dao_collection)
-  local ok, err = dao_collection:delete(where_t)
-  if not ok then
+  print("WAT")
+  local res, err = dao_collection:delete(where_t)
+
+  local inspect = require "inspect"
+  print(inspect(res))
+
+  if not res then
+    print("WAT")
     if err then
       return app_helpers.yield_error(err)
     else
       return responses.send_HTTP_NOT_FOUND()
     end
   else
-    events.delete(dao_collection._table, where_t)
+    print("WOT")
+    propagator.delete(dao_collection._table, res)
     return responses.send_HTTP_NO_CONTENT()
   end
 end

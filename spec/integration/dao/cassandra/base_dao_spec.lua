@@ -532,9 +532,9 @@ describe("Cassandra", function()
           assert.truthy(entities)
           assert.True(#entities > 0)
 
-          local ok, err = dao_factory[collection]:delete(entities[1])
+          local res, err = dao_factory[collection]:delete(entities[1])
           assert.falsy(err)
-          assert.True(ok)
+          assert.truthy(res)
 
           local entities, err = session:execute("SELECT * FROM "..collection.." WHERE id = ?", {cassandra.uuid(entities[1].id)})
           assert.falsy(err)
