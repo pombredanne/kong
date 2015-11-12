@@ -40,9 +40,9 @@ describe("Cassandra cascade delete", function()
     end)
 
     it("should delete foreign plugins when deleting an API", function()
-      local res, err = dao_factory.apis:delete(api)
+      local ok, err = dao_factory.apis:delete(api)
       assert.falsy(err)
-      assert.truthy(res)
+      assert.True(ok)
 
       -- Make sure we have 0 matches
       local results, err = dao_factory.plugins:find_by_keys {
@@ -90,9 +90,9 @@ describe("Cassandra cascade delete", function()
     end)
 
     it("should delete foreign plugins when deleting a Consumer", function()
-      local res, err = dao_factory.consumers:delete(consumer)
+      local ok, err = dao_factory.consumers:delete(consumer)
       assert.falsy(err)
-      assert.truthy(res)
+      assert.True(ok)
 
       local results, err = dao_factory.plugins:find_by_keys {
         consumer_id = consumer.id
@@ -173,9 +173,9 @@ describe("Cassandra cascade delete", function()
     end)
 
     it("should delete foreign basicauth_credentials when deleting a Consumer", function()
-      local res, err = dao_factory.consumers:delete(consumer)
+      local ok, err = dao_factory.consumers:delete(consumer)
       assert.falsy(err)
-      assert.truthy(res)
+      assert.True(ok)
 
       local results, err = dao_factory.basicauth_credentials:find_by_keys {
         consumer_id = consumer.id
@@ -231,9 +231,9 @@ describe("Cassandra cascade delete", function()
     end)
 
     it("should delete foreign oauth2_credentials and tokens when deleting a Consumer", function()
-      local res, err = dao_factory.consumers:delete(consumer)
+      local ok, err = dao_factory.consumers:delete(consumer)
       assert.falsy(err)
-      assert.truthy(res)
+      assert.True(ok)
 
       local results, err = dao_factory.oauth2_credentials:find_by_keys {
         consumer_id = consumer.id

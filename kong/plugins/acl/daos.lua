@@ -12,11 +12,11 @@ local SCHEMA = {
 
 local ACLs = BaseDao:extend()
 
-function ACLs:new(properties)
+function ACLs:new(properties, events_handler)
   self._table = "acls"
   self._schema = SCHEMA
 
-  ACLs.super.new(self, properties)
+  ACLs.super.new(self, properties, events_handler)
 end
 
 return { acls = ACLs }

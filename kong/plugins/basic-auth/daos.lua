@@ -19,11 +19,11 @@ local SCHEMA = {
 
 local BasicAuthCredentials = BaseDao:extend()
 
-function BasicAuthCredentials:new(properties)
+function BasicAuthCredentials:new(properties, events_handler)
   self._table = "basicauth_credentials"
   self._schema = SCHEMA
 
-  BasicAuthCredentials.super.new(self, properties)
+  BasicAuthCredentials.super.new(self, properties, events_handler)
 end
 
 return {basicauth_credentials = BasicAuthCredentials}

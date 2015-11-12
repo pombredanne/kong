@@ -15,6 +15,7 @@ local stringy = require "stringy"
 local Object = require "classic"
 local utils = require "kong.tools.utils"
 local uuid = require "lua_uuid"
+local event_types = require("kong.core.events").TYPES
 
 local cassandra_constants = cassandra.constants
 local error_types = constants.DATABASE_ERROR_TYPES
@@ -145,7 +146,9 @@ function BaseDao:insert(t)
   if stmt_err then
     return nil, stmt_err
   else
-    return self:_unmarshall(t)
+    local res = self:_unmarshall(t)
+    self:_event(event_types.ENTITY_CREATED, {entity=res})
+    return res
   end
 end
 
@@ -200,15 +203,15 @@ function BaseDao:update(t, full)
   local ok, db_err, errors, self_err
 
   -- Check if exists to prevent upsert
-  local res, err = self:find_by_primary_key(t)
+  local entity, err = self:find_by_primary_key(t)
   if err then
     return false, err
-  elseif not res then
+  elseif not entity then
     return false
   end
 
   if not full then
-    fix_tables(t, res, self._schema)
+    fix_tables(t, entity, self._schema)
   end
 
   -- Validate schema
@@ -255,7 +258,9 @@ function BaseDao:update(t, full)
   if stmt_err then
     return nil, stmt_err
   else
-    return self:_unmarshall(t)
+    local res = self:_unmarshall(t)
+    self:_event(event_types.ENTITY_UPDATED, {old_entity = entity, entity=res})
+    return res
   end
 end
 
@@ -342,10 +347,10 @@ function BaseDao:delete(where_t)
   assert(where_t ~= nil and type(where_t) == "table", "where_t must be a table")
 
   -- Test if exists first
-  local res, err = self:find_by_primary_key(where_t)
+  local entity, err = self:find_by_primary_key(where_t)
   if err then
     return false, err
-  elseif not res then
+  elseif not entity then
     return false
   end
 
@@ -365,7 +370,9 @@ function BaseDao:delete(where_t)
     end
   end
 
-  return res
+  self:_event(event_types.ENTITY_DELETED, {entity = entity})
+
+  return results
 end
 
 ---
@@ -387,7 +394,7 @@ end
 -- child class and called once the child class has a schema set.
 -- @param properties Cassandra properties from the configuration file.
 -- @treturn table Instanciated DAO.
-function BaseDao:new(properties)
+function BaseDao:new(properties, events_handler)
   if self._schema then
     self._primary_key = self._schema.primary_key
     self._clustering_key = self._schema.clustering_key
@@ -406,6 +413,7 @@ function BaseDao:new(properties)
   end
 
   self._properties = properties
+  self._events = events_handler
   self._statements_cache = {}
   self._cascade_delete_hooks = {}
 end
@@ -733,6 +741,18 @@ function BaseDao:add_delete_hook(foreign_dao_name, foreign_column, parent_column
   end
 
   table.insert(self._cascade_delete_hooks, delete_hook)
+end
+
+-- Publishes an event, if an event handler has been specified.
+-- Currently this propagates the events cluster-wide.
+-- @param[type=string] type The event type to publish
+-- @param[type=table] data_t The payload to publish in the event
+function BaseDao:_event(type, data_t)
+  if self._events then
+    data_t["collection"] = self._table
+    data_t["type"] = type
+    self._events:publish(self._events.TYPES.CLUSTER_PROPAGATE, data_t)
+  end
 end
 
 return BaseDao

@@ -13,10 +13,10 @@ local SCHEMA = {
 
 local HMACAuthCredentials = BaseDao:extend()
 
-function HMACAuthCredentials:new(properties)
+function HMACAuthCredentials:new(properties, events_handler)
   self._table = "hmacauth_credentials"
   self._schema = SCHEMA
-  HMACAuthCredentials.super.new(self, properties)
+  HMACAuthCredentials.super.new(self, properties, events_handler)
 end
 
 return { hmacauth_credentials = HMACAuthCredentials }

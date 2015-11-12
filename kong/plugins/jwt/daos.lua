@@ -14,11 +14,11 @@ local SCHEMA = {
 
 local Jwt = BaseDao:extend()
 
-function Jwt:new(properties)
+function Jwt:new(properties, events_handler)
   self._table = "jwt_secrets"
   self._schema = SCHEMA
 
-  Jwt.super.new(self, properties)
+  Jwt.super.new(self, properties, events_handler)
 end
 
 return {jwt_secrets = Jwt}

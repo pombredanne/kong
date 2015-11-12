@@ -203,7 +203,6 @@ build = {
 
     ["kong.api.app"] = "kong/api/app.lua",
     ["kong.api.crud_helpers"] = "kong/api/crud_helpers.lua",
-    ["kong.api.propagator"] = "kong/api/propagator.lua",
     ["kong.api.route_helpers"] = "kong/api/route_helpers.lua",
     ["kong.api.routes.kong"] = "kong/api/routes/kong.lua",
     ["kong.api.routes.apis"] = "kong/api/routes/apis.lua",

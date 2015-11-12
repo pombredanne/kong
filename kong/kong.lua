@@ -90,6 +90,19 @@ local function load_node_plugins(configuration)
   return sorted_plugins
 end
 
+--- Attach plugin hooks to event bus
+-- Subscribe every event in the hooks.lua for every plugin to the event bus
+local function attach_plugins_hooks(events, plugins)
+  for _, plugin in ipairs(plugins) do
+    local loaded, plugin_hooks = utils.load_module_if_exists("kong.plugins."..plugin.name..".hooks")
+    if loaded then
+      for k, v in pairs(plugin_hooks) do
+        events:subscribe({k}, v)
+      end
+    end
+  end
+end
+
 --- Kong public context handlers.
 -- @section kong_handlers
 
@@ -108,9 +121,19 @@ local Kong = {}
 -- it will be thrown and needs to be catched in `init_by_lua`.
 function Kong.init()
   configuration = config_loader.load(os.getenv("KONG_CONF"))
-  dao = dao_loader.load(configuration)
+  events = Events()
+  dao = dao_loader.load(configuration, events)
   loaded_plugins = load_node_plugins(configuration)
-  events = Events(loaded_plugins)
+
+  -- Attach hooks for every plugin
+  attach_plugins_hooks(events, loaded_plugins)
+
+  -- Attach cluster propagator
+  local serf = require("kong.cli.services.serf")(configuration)
+  events:subscribe(events.TYPES.CLUSTER_PROPAGATE, function(message_t)
+    serf:event(message_t)
+  end)
+
   ngx.update_time()
 end
 
