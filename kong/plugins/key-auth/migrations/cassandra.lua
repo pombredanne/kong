@@ -1,26 +1,20 @@
-local Migrations = {
+return {
   {
     name = "2015-07-31-172400_init_keyauth",
-    up = function(options)
-      return [[
-        CREATE TABLE IF NOT EXISTS keyauth_credentials(
-          id uuid,
-          consumer_id uuid,
-          key text,
-          created_at timestamp,
-          PRIMARY KEY (id)
-        );
+    up =  [[
+      CREATE TABLE IF NOT EXISTS keyauth_credentials(
+        id uuid,
+        consumer_id uuid,
+        key text,
+        created_at timestamp,
+        PRIMARY KEY (id)
+      );
 
-        CREATE INDEX IF NOT EXISTS ON keyauth_credentials(key);
-        CREATE INDEX IF NOT EXISTS keyauth_consumer_id ON keyauth_credentials(consumer_id);
-      ]]
-    end,
-    down = function(options)
-      return [[
-        DROP TABLE keyauth_credentials;
-      ]]
-    end
+      CREATE INDEX IF NOT EXISTS ON keyauth_credentials(key);
+      CREATE INDEX IF NOT EXISTS keyauth_consumer_id ON keyauth_credentials(consumer_id);
+    ]],
+    down = [[
+      DROP TABLE keyauth_credentials;
+    ]]
   }
 }
-
-return Migrations
